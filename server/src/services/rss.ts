@@ -42,6 +42,19 @@ function getConfiguredFrontendUrl(env: Env): string | null {
     return frontendUrl || null;
 }
 
+// Markdown can contain image syntax that is not a real link (e.g. inside code blocks),
+// and the feed library throws on any invalid URL, so only keep resolvable http(s) images.
+function resolveFeedImage(image: string | undefined, frontendUrl: string): string | undefined {
+    if (!image || (!/^(https?:)?\/\//.test(image) && !image.startsWith('/'))) {
+        return undefined;
+    }
+    try {
+        return new URL(image, frontendUrl).href;
+    } catch {
+        return undefined;
+    }
+}
+
 export function RSSService(): Hono {
     const app = new Hono();
 
@@ -256,7 +269,7 @@ async function generateFeed(env: Env, db: DB, frontendUrl: string, c?: AppContex
                     : content,
             content: contentHtml,
             author: user ? [{ name: user.username }] : undefined,
-            image: extractImage(content),
+            image: resolveFeedImage(extractImage(content), frontendUrl),
         });
     }
     
