@@ -7,8 +7,8 @@ import { readBootstrappedClientConfig } from "./bootstrap-config";
 import { client } from "./runtime";
 
 function applyViewportScaling() {
-  const highResolutionThreshold = 2560;
-  document.documentElement.style.fontSize = window.screen.width >= highResolutionThreshold ? "125%" : "100%";
+  // Always render at 100%; the upstream 125% bump on screens >= 2560px made everything oversized.
+  document.documentElement.style.fontSize = "100%";
 }
 
 export function useAppBootstrap() {
